@@ -249,7 +249,7 @@ public final class BottomSheetView: UIView {
         case .changed:
             updateDimViewAlpha(for: location)
             topConstraint.constant = translationTarget.nextOffset(for: location)
-            delegate?.bottomSheetView(self, didPan: location)
+            delegate?.bottomSheetView(self, didPan: topConstraint.constant)
 
         case .ended, .cancelled, .failed:
             initialOffset = nil
