@@ -17,11 +17,18 @@ final class BottomSheetPresentationController: UIPresentationController {
 
     var transitionState: TransitionState = .presenting
 
+    weak var bottomSheetDelegate: BottomSheetViewDelegate? {
+        didSet { bottomSheetView?.delegate = bottomSheetDelegate }
+    }
+
     // MARK: - Private properties
 
     private let targetHeights: [CGFloat]
     private let startTargetIndex: Int
-    private var bottomSheetView: BottomSheetView?
+
+    private var bottomSheetView: BottomSheetView? {
+        didSet { bottomSheetView?.delegate = bottomSheetDelegate }
+    }
 
     // MARK: - Init
 
@@ -47,7 +54,7 @@ final class BottomSheetPresentationController: UIPresentationController {
             isDismissible: true
         )
 
-        bottomSheetView?.delegate = self
+        bottomSheetView?.dismissDelegate = self
         bottomSheetView?.isDimViewHidden = false
     }
 
@@ -92,7 +99,7 @@ extension BottomSheetPresentationController: UIViewControllerInteractiveTransiti
 
 // MARK: - BottomSheetViewPresenterDelegate
 
-extension BottomSheetPresentationController: BottomSheetViewDelegate {
+extension BottomSheetPresentationController: BottomSheetViewDismissDelegate {
     func bottomSheetViewDidTapDimView(_ view: BottomSheetView) {
         presentedViewController.dismiss(animated: true)
     }

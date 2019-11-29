@@ -47,6 +47,8 @@ final class DemoViewController: UIViewController {
     // MARK: - Presentation logic
 
     @objc private func presentViewController() {
+        bottomSheetTransitioningDelegate.delegate = self
+
         let viewController = UIViewController()
         viewController.transitioningDelegate = bottomSheetTransitioningDelegate
         viewController.modalPresentationStyle = .custom
@@ -72,6 +74,12 @@ final class DemoViewController: UIViewController {
             targetHeights: [100, 500]
         )
         bottomSheetView.present(in: view)
+    }
+}
+
+extension DemoViewController: BottomSheetViewDelegate {
+    func bottomSheetView(_ view: BottomSheetView, didPan offset: CGFloat) {
+        print("Bottom sheet did pan: \n\t- Offset: \(offset)")
     }
 }
 

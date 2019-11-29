@@ -13,6 +13,10 @@ extension CGFloat {
 // MARK: - Delegate
 
 public protocol BottomSheetViewDelegate: AnyObject {
+    func bottomSheetView(_ view: BottomSheetView, didPan offset: CGFloat)
+}
+
+protocol BottomSheetViewDismissDelegate: AnyObject {
     func bottomSheetViewDidTapDimView(_ view: BottomSheetView)
     func bottomSheetViewDidReachDismissArea(_ view: BottomSheetView)
 }
@@ -20,12 +24,19 @@ public protocol BottomSheetViewDelegate: AnyObject {
 // MARK: - View
 
 public final class BottomSheetView: UIView {
+
+    // MARK: - Publiv properties
+
     public weak var delegate: BottomSheetViewDelegate?
 
     public var isDimViewHidden: Bool {
         get { dimView.isHidden }
         set { dimView.isHidden = newValue }
     }
+
+    // MARK: - Internal properties
+
+    weak var dismissDelegate: BottomSheetViewDismissDelegate?
 
     // MARK: - Private properties
 
@@ -104,6 +115,9 @@ public final class BottomSheetView: UIView {
         springAnimator.addAnimation { [weak self] position in
             self?.topConstraint.constant = position.y
             self?.updateDimViewAlpha(for: position.y)
+
+            guard let self = self else { return }
+            self.delegate?.bottomSheetView(self, didPan: position.y)
         }
 
         springAnimator.addCompletion { didComplete in completion?(didComplete) }
@@ -235,12 +249,13 @@ public final class BottomSheetView: UIView {
         case .changed:
             updateDimViewAlpha(for: location)
             topConstraint.constant = translationTarget.nextOffset(for: location)
+            delegate?.bottomSheetView(self, didPan: location)
 
         case .ended, .cancelled, .failed:
             initialOffset = nil
 
             if translationTarget.isDismissible {
-                delegate?.bottomSheetViewDidReachDismissArea(self)
+                dismissDelegate?.bottomSheetViewDidReachDismissArea(self)
             } else {
                 animate(to: translationTarget.targetOffset)
                 createTranslationTargets()
@@ -254,7 +269,7 @@ public final class BottomSheetView: UIView {
     // MARK: - UITapGestureRecognizer
 
     @objc private func handleTap(tapGesture: UITapGestureRecognizer) {
-        delegate?.bottomSheetViewDidTapDimView(self)
+        dismissDelegate?.bottomSheetViewDidTapDimView(self)
     }
 
     // MARK: - Offset calculation

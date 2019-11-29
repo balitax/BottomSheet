@@ -5,9 +5,17 @@
 import UIKit
 
 public final class BottomSheetTransitioningDelegate: NSObject {
+
+    public weak var delegate: BottomSheetViewDelegate? {
+        didSet { presentationController?.bottomSheetDelegate = delegate }
+    }
+
     private let preferredHeights: [CGFloat]
     private let startTargetIndex: Int
-    private var presentationController: BottomSheetPresentationController?
+
+    private var presentationController: BottomSheetPresentationController? {
+        didSet { presentationController?.bottomSheetDelegate = delegate }
+    }
 
     // MARK: - Init
 
